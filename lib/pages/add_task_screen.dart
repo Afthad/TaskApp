@@ -32,6 +32,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   void initState() {
     if(widget.isEdit){
     _startDate=widget.startDate!;
+    fieldText.text=widget.desc!;
     }
     super.initState();
   }
@@ -40,7 +41,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   String? task;
 
   String? desc;
-
+ final fieldText = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,6 +50,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           elevation: 0,
           backgroundColor: AppColors.backgroundViolet,
           centerTitle: true,
+          iconTheme:const IconThemeData(color: AppColors.lightblueGradient),
+          actions:const [
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Icon( Icons.format_list_bulleted_rounded),
+            )
+          ],
           title: const TextWidget(
               text: 'Add New Thing',
               color: Colors.white,
@@ -73,7 +81,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: .3)),
                       child: const Icon(
-                        Icons.tiktok,
+                        Icons.music_note,
                         color: Colors.white,
                       )),
                 ),
@@ -100,7 +108,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   decoration: inputDecoration(hintText: 'Task name'),
                 ),
                 TextFormField(
-                    initialValue: widget.desc,
+                  controller: fieldText,
+                   // initialValue: widget.desc,
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Enter Task Desc';
@@ -117,7 +126,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     desc=s;
                   },
                   style: const TextStyle(color: Colors.white38),
-                  decoration: inputDecoration(hintText: 'Description'),
+                  decoration: inputDecoration(hintText: 'Description',suffix:  GestureDetector(
+                    onTap: (){
+                      fieldText.clear();
+                    },
+                    child:const Padding(
+                      padding:  EdgeInsets.all(16.0),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        radius:5,
+                        child: Icon(Icons.close,size: 10,color: Colors.white,)),
+                    ),
+                  )),
                 ),
                 const SizedBox(
                   height: 20,
@@ -131,17 +151,19 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6)),
                     height: 44,
-                    minWidth: MediaQuery.of(context).size.width - 100,
+                    minWidth: MediaQuery.of(context).size.width - 50,
                     color: AppColors.lightBlue,
                     child: const TextWidget(
-                      text: 'Add your thing',
-                      color: Colors.white,
-                      fontSize: 15,
+                      text: 'ADD YOUR THING',
+                      color: Colors.white60,
+                      fontSize: 13,
                       fontWeight: FontWeight.w400,
                     ),
-                    onPressed: () {
-                      submit();
-                      Navigator.pop(context);
+                    onPressed: () async{
+                    if( await submit()){
+Navigator.pop(context);
+                    }
+                      
                     })
               ],
             ),
@@ -149,7 +171,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         ));
   }
 
-  submit() async {
+  Future<bool>submit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       if(!widget.isEdit){
@@ -159,7 +181,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         desc: desc!,
         id: _startDate.millisecondsSinceEpoch,
         userId: widget.uid,
+      
       ));
+        return true;
       }else{
         await widget.database.updateTask(TaskModel(
         taskName: task!,
@@ -168,8 +192,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         id: widget.id!,
         userId: widget.uid,
       ));
+      return true;
       }
     }
+    return false;
   }
 
   Widget _buildStartDate() {
@@ -186,12 +212,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     );
   }
 
-  InputDecoration inputDecoration({String? hintText}) {
+  InputDecoration inputDecoration({String? hintText,Widget? suffix}) {
     return InputDecoration(
       border: InputBorder.none,
+  
       hintText: hintText,
+      suffixIcon: suffix,
       hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
-      contentPadding: const EdgeInsets.only(left: 14.0, bottom: 6.0, top: 8.0),
+      contentPadding: const EdgeInsets.only(left: 14.0, bottom: 6.0, top: 12.0),
       focusedBorder: UnderlineInputBorder(
         borderSide: const BorderSide(color: Colors.grey),
         borderRadius: BorderRadius.circular(10.0),

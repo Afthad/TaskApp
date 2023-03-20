@@ -11,11 +11,13 @@ class TaskTile extends StatelessWidget {
   final DateTime date;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
+  final bool isProfileRequired;
   const TaskTile({
     Key? key,
     required this.title,
     required this.desc,
     required this.date,
+    required this.isProfileRequired,
     required this.onDelete,
     required this.onEdit,
   }) : super(key: key);
@@ -64,25 +66,42 @@ class TaskTile extends StatelessWidget {
                   );
                 });
           },
-          trailing: TextWidget(
-              text: DateFormat.yMMMEd().format(date),
-              color: Colors.black,
-              fontSize: 10,
-              fontWeight: FontWeight.w400),
+          trailing: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextWidget(
+                  text: DateFormat.j().format(date),
+                  color: Colors.grey,
+                  fontSize: 8,
+                  fontWeight: FontWeight.w600),
+                  isProfileRequired?
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children:const [
+                  CircleAvatar(
+                    backgroundImage: AssetImage('images/profile_1.jpg',),
+                    radius: 8,),
+                    CircleAvatar(
+                    backgroundImage: AssetImage('images/profile_1.jpg',),
+                    radius: 8,),
+                ],
+              ):const SizedBox()
+            ],
+          ),
           leading: Container(
-              height: 30,
-              width: 30,
+              height: 40,
+              width: 40,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.grey, width: .3)),
               child: const Icon(
-                Icons.tiktok,
+                Icons.music_note_outlined,
                 color: AppColors.lightBlue,
               )),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
+           
               TextWidget(
                 text: desc,
                 color: Colors.black54,
